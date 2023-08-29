@@ -1,14 +1,13 @@
 package com.asoft.photo.app.service;
 
 import com.asoft.photo.app.bo.AppClientDetail;
+import com.asoft.photo.app.bo.ConfirmUserRequest;
 import com.asoft.photo.app.bo.CreateUserRequest;
 import com.asoft.photo.app.util.SecretHashUtil;
 import com.google.gson.JsonObject;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.SignUpRequest;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.SignUpResponse;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -70,5 +69,32 @@ public class CognitoUserService {
         createUserResult.addProperty("isConfirmed",signUpResponse.userConfirmed());
 
         return createUserResult;
+    }
+
+    public JsonObject confirmUser(ConfirmUserRequest confirmUserRequest){
+        AppClientDetail appClientDetail=confirmUserRequest.getAppClientDetail();
+
+        String email=confirmUserRequest.getUserDetail().get("email").getAsString();
+        String confirmationCode=confirmUserRequest.getConfirmationCode();
+        String generatedSecretHash=SecretHashUtil
+                .calculateSecretHash(appClientDetail.getAppClientId(),
+                        appClientDetail.getAppClientSecret()
+                ,email);
+
+        ConfirmSignUpRequest confirmSignUpRequest=ConfirmSignUpRequest.builder()
+                .clientId(appClientDetail.getAppClientId())
+                .confirmationCode(confirmationCode)
+                .secretHash(generatedSecretHash)
+                .username(email)
+                .build();
+
+        ConfirmSignUpResponse confResponse=cognitoIdentityProviderClient
+                .confirmSignUp(confirmSignUpRequest);
+
+        JsonObject confirmUserResponse=new JsonObject();
+        confirmUserResponse.addProperty("isSuccessful",confResponse.sdkHttpResponse().isSuccessful());
+        confirmUserResponse.addProperty("statusCode",confResponse.sdkHttpResponse().statusCode());
+
+        return confirmUserResponse;
     }
 }

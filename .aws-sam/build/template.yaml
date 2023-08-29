@@ -29,6 +29,21 @@ Resources:
             Method: post
     Metadata:
       SamResourceId: CreateUserHandlerFunction
+  ConfirmUserHandlerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ConfirmUserHandlerFunction
+      Handler: com.asoft.photo.app.lambda.ConfirmUserHandlerFunction::handleRequest
+      Runtime: java17
+      Tracing: Active
+      Events:
+        confirmUser:
+          Type: Api
+          Properties:
+            Path: /confirm
+            Method: post
+    Metadata:
+      SamResourceId: ConfirmUserHandlerFunction
 Outputs:
   PhotoAppUsersAPI:
     Description: API Gateway endpoint URL for Prod stage for Create User Handler function

@@ -7,7 +7,8 @@ import java.util.Base64;
 
 public class SecretHashUtil {
 
-    public static String calculateSecretHash(String userPoolClientId, String userPoolClientSecret, String userName) {
+    public static String calculateSecretHash(String userPoolClientId, String userPoolClientSecret,
+                                             String userName) {
         final String HMAC_SHA256_ALGORITHM = "HmacSHA256";
 
         SecretKeySpec signingKey = new SecretKeySpec(
